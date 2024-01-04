@@ -5,7 +5,11 @@ set(CMAKE_CXX_STANDART 17)
 
 project(${PROJECT_NAME})
 
-add_executable(CustomGraphicsRenderer src/main.cpp)
+add_executable(CustomGraphicsRenderer src/main.cpp
+				src/tools/Logger.h
+				src/tools/Logger.cpp
+				src/Window/Window.h
+				src/Window/Window.cpp)
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
