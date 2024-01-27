@@ -9,7 +9,11 @@ add_executable(CustomGraphicsRenderer src/main.cpp
 				src/tools/Logger.h
 				src/tools/Logger.cpp
 				src/Window/Window.h
-				src/Window/Window.cpp)
+				src/Window/Window.cpp
+				src/tools/IInputHandler.cpp
+				src/tools/IInputHandler.h
+				src/tools/InputHandler.h
+				src/tools/InputHandler.cpp)
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
