@@ -17,9 +17,11 @@ set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 add_subdirectory(external/glfw)
 target_link_libraries(${PROJECT_NAME} glfw)
 
-include_directories(external/glm)
+# Link against OpenGL library
+find_package(OpenGL REQUIRED)
+target_link_libraries(${PROJECT_NAME} OpenGL::GL)
 
-# Include the entire src directory
+include_directories(external/glm)
 include_directories(${CMAKE_SOURCE_DIR}/src)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/)
