@@ -8,12 +8,13 @@ bool Window::init(unsigned wight, unsigned height, const std::string& title)
 		return false;
 	}
 
-	glfwMakeContextCurrent(_window);
 	Logger::log(1, "%s: Window successfully initialized!", __FUNCTION__);
 
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
 	_window = glfwCreateWindow(wight, height, title.c_str(), NULL, NULL);
+	glfwMakeContextCurrent(_window);
+
 	if(!_window)
 	{
 		Logger::log(1, "$s: can`t create window" __FUNCTION__);
@@ -23,6 +24,16 @@ bool Window::init(unsigned wight, unsigned height, const std::string& title)
 
 	glfwSetWindowUserPointer(_window, this);
 
+	_renderer = std::make_unique<OGLRenderer>();
+	if (!_renderer->init(wight, height)) {
+		glfwTerminate();
+		Logger::log(1, "%s error: Could not init OpenGL\n", __FUNCTION__);
+		return false;
+	}
+
+	_model = std::make_unique<Model>();
+	_model->init();
+
 	initWindowCallbacks();
 
 	Logger::log(1, "$s: window successfully created" __FUNCTION__);
@@ -31,17 +42,25 @@ bool Window::init(unsigned wight, unsigned height, const std::string& title)
 
 void Window::mainLoop()
 {
+	_renderer->uploadData(_model->getVertexData());
+
 	while (!glfwWindowShouldClose(_window))
 	{
+		_renderer->draw();
+
+		glfwSwapBuffers(_window);
 		glfwPollEvents();
 	}
 }
 
 void Window::cleanup()
 {
-	Logger::log(1, "$s: terminating window" __FUNCTION__);
+	_renderer->cleanup();
+
 	glfwDestroyWindow(_window);
 	glfwTerminate();
+
+	Logger::log(1, "$s: terminating window" __FUNCTION__);
 }
 
 void Window::initWindowCallbacks()
@@ -115,6 +134,15 @@ void Window::initWindowCallbacks()
 			if (window)
 			{
 				window->GetInputHandler()->handleMouseEnterLeave(entered);
+			}
+		});
+
+	glfwSetWindowSizeCallback(_window, [](GLFWwindow* win, int width, int height)
+		{
+			auto renderer = static_cast<OGLRenderer*>(glfwGetWindowUserPointer(win));
+			if(renderer)
+			{
+				renderer->setSize(width, height);
 			}
 		});
 }

@@ -1,9 +1,12 @@
 #include <memory>
+#include "ResourceManager.h"
 #include "tools/Logger.h"
 #include "Window/Window.h"
 
-int main(void)
+int main(int argc, char** argv)
 {
+    ResourceManager::setExecutablePath(argv[0]);
+
     std::unique_ptr<Window> window = std::make_unique<Window>();
     InputHandler handler;
     if(!window->init(640, 480, "Test Window"))
@@ -12,6 +15,8 @@ int main(void)
         return -1;
     }
 
+    //ResourceManager::loadShaders("Default", "res/shader/basic.vert", "res/shader/basic.frag");
+
     if(!window->GetInputHandler())
     {
         window->SetInputHandler(&handler);
@@ -19,5 +24,7 @@ int main(void)
 
     window->mainLoop();
     window->cleanup();
+
+    ResourceManager::unloadAllResources();
     return 0;
 }
