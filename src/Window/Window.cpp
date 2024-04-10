@@ -24,7 +24,7 @@ bool Window::init(unsigned wight, unsigned height, const std::string& title)
 
 	glfwSetWindowUserPointer(_window, this);
 
-	_renderer = std::make_unique<OGLRenderer>();
+	_renderer = std::make_unique<OGLRenderer>(_window);
 	if (!_renderer->init(wight, height)) {
 		glfwTerminate();
 		Logger::log(1, "%s error: Could not init OpenGL\n", __FUNCTION__);
@@ -42,6 +42,8 @@ bool Window::init(unsigned wight, unsigned height, const std::string& title)
 
 void Window::mainLoop()
 {
+	glfwSwapInterval(1);
+
 	_renderer->uploadData(_model->getVertexData());
 
 	while (!glfwWindowShouldClose(_window))
@@ -106,7 +108,7 @@ void Window::initWindowCallbacks()
 			Window* window = static_cast<Window*>(glfwGetWindowUserPointer(win));
 			if (window)
 			{
-				window->GetInputHandler()->handleKey(key, scancode, action, mods);
+				window->_renderer->handleKeyEvents(key, scancode, action, mods);
 			}
 		});
 

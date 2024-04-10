@@ -35,6 +35,9 @@ Shader::Shader(const std::string& vertexShader, const std::string& fragmentShade
 		_isCompiled = true;
 	}
 
+	GLint uboIndex = glGetUniformBlockIndex(_ID, "Matrices");
+	glUniformBlockBinding(_ID, uboIndex, 0);
+
 	glDeleteShader(vertexShaderID);
 	glDeleteShader(fragmentShaderID);
 }
