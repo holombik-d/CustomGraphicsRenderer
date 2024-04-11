@@ -7,6 +7,8 @@
 
 #include "OGLRenderData.h"
 #include "UniformBuffer.h"
+#include "UserInterface.h"
+#include "tools/Timer.h"
 
 class OGLRenderer {
 public:
@@ -24,17 +26,14 @@ private:
     std::shared_ptr<Shader> _chandedShader = nullptr;
     std::shared_ptr<Texture> _texture = nullptr;
     UniformBuffer _uniformBuffer{};
-
+    OGLRenderData _renderData;
     Framebuffer _framebuffer{};
     VertexBuffer _vrtexBuffer{};
-
-    GLFWwindow* _window = nullptr;
+    UserInterface _userInterface;
+    Timer _uiGenerateTimer;
+    Timer _uiDrawTimer;
 
     bool _useChangedShader = false;
-    int _triangleCount = 0;
-
-    int _width = 0;
-    int _height = 0;
 
     /* create identity matrix by default */
     glm::mat4 _viewMatrix = glm::mat4(1.0f);

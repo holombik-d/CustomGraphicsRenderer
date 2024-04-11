@@ -13,7 +13,6 @@ bool Window::init(unsigned wight, unsigned height, const std::string& title)
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
 	_window = glfwCreateWindow(wight, height, title.c_str(), NULL, NULL);
-	glfwMakeContextCurrent(_window);
 
 	if(!_window)
 	{
@@ -22,7 +21,10 @@ bool Window::init(unsigned wight, unsigned height, const std::string& title)
 		return false;
 	}
 
+	glfwMakeContextCurrent(_window);
+
 	glfwSetWindowUserPointer(_window, this);
+	initWindowCallbacks();
 
 	_renderer = std::make_unique<OGLRenderer>(_window);
 	if (!_renderer->init(wight, height)) {
@@ -33,9 +35,7 @@ bool Window::init(unsigned wight, unsigned height, const std::string& title)
 
 	_model = std::make_unique<Model>();
 	_model->init();
-
-	initWindowCallbacks();
-
+	
 	Logger::log(1, "$s: window successfully created" __FUNCTION__);
 	return true;
 }

@@ -8,12 +8,12 @@
 
 OGLRenderer::OGLRenderer(GLFWwindow* window)
 {
-    _window = window;
+    _renderData._window = window;
 }
 
 bool OGLRenderer::init(unsigned int width, unsigned int height) {
-    _width = width;
-    _height = height;
+    _renderData._width = width;
+    _renderData._height = height;
 
     /* initalize GLAD */
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
@@ -56,6 +56,7 @@ bool OGLRenderer::init(unsigned int width, unsigned int height) {
 
     _vrtexBuffer.init();
     _uniformBuffer.init();
+    _userInterface.init(_renderData);
 
     return true;
 }
@@ -74,17 +75,20 @@ void OGLRenderer::setSize(unsigned int width, unsigned int height) {
 
 void OGLRenderer::uploadData(OGLMesh vertexData)
 {
-    _triangleCount = vertexData.vertices.size() / 3;
+    _renderData._triangleCount = vertexData.vertices.size() / 3;
     _vrtexBuffer.uploadData(vertexData);
 }
 
 void OGLRenderer::draw()
 {
-	while (_width == 0 || _height == 0)
+	while (_renderData._width == 0 || _renderData._height == 0)
 	{
-        glfwGetFramebufferSize(_window, &_width, &_height);
+        glfwGetFramebufferSize(_renderData._window, &_renderData._width, &_renderData._height);
         glfwWaitEvents();
 	}
+
+    static float prevFrameStartTime = 0.0f;
+    float frameStartTime = glfwGetTime();
 
     _framebuffer.bind();
 
@@ -117,12 +121,23 @@ void OGLRenderer::draw()
     _texture->bind();
     _vrtexBuffer.bind();
 
-    _vrtexBuffer.draw(GL_TRIANGLES, 0, _triangleCount * 3);
+    _vrtexBuffer.draw(GL_TRIANGLES, 0, _renderData._triangleCount * 3);
     _vrtexBuffer.unbind();
     _texture->unbind();
     _framebuffer.unbind();
 
     _framebuffer.drawToScreen();
+
+    _uiGenerateTimer.start();
+    _userInterface.createFrame(_renderData);
+    _renderData._uiGenerateTime = _uiGenerateTimer.stop();
+
+    _uiDrawTimer.start();
+    _userInterface.render();
+    _renderData._uiDrawTime = _uiDrawTimer.stop();
+
+    _renderData._frameTime = frameStartTime - prevFrameStartTime;
+    prevFrameStartTime = frameStartTime;
 }
 
 void OGLRenderer::cleanup()
@@ -132,6 +147,7 @@ void OGLRenderer::cleanup()
     _texture->cleanup();
     _vrtexBuffer.cleanup();
     _framebuffer.cleanup();
+    _userInterface.cleanup();
 }
 
 void OGLRenderer::handleKeyEvents(int key, int scancode, int action, int mods)
